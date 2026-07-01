@@ -282,6 +282,30 @@ h2{font-family:var(--fontHead);font-weight:700;line-height:1.07;font-size:62px}
 .kbd-hint{position:fixed;bottom:clamp(16px,2.6vh,26px);left:clamp(24px,3vw,46px);z-index:30;
   font-size:13px;color:var(--muted);opacity:.6;font-family:var(--fontHead)}
 @media (max-width:1100px){.kbd-hint{display:none}}
+
+/* ---------- SPEAKER NOTES (secret: faint 📝 button / press N) ---------- */
+#notesToggle{position:fixed;left:clamp(20px,2.6vw,40px);bottom:clamp(60px,8.5vh,92px);z-index:61;
+  width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+  background:var(--panel);color:var(--fg);opacity:.12;cursor:pointer;font-size:20px;
+  display:flex;align-items:center;justify-content:center;transition:opacity .2s,transform .2s}
+#notesToggle:hover,#notesToggle.on{opacity:1;transform:scale(1.06)}
+#notesPanel{position:fixed;left:2.5vw;right:2.5vw;bottom:96px;z-index:60;max-height:46vh;
+  display:flex;flex-direction:column;border-radius:16px;overflow:hidden;
+  background:rgba(12,15,24,.97);border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 22px 64px rgba(0,0,0,.6);backdrop-filter:blur(10px);
+  transform:translateY(24px);opacity:0;visibility:hidden;
+  transition:opacity .25s ease,transform .25s ease,visibility .25s}
+#notesPanel.open{transform:none;opacity:1;visibility:visible}
+.np-head{display:flex;align-items:center;justify-content:space-between;gap:1em;flex:0 0 auto;
+  padding:.7em 1.1em;background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.12);
+  font-family:var(--fontHead);font-weight:600;font-size:clamp(16px,1.7vw,22px);color:#fff}
+.np-head button{background:rgba(255,255,255,.12);border:none;color:#fff;width:34px;height:34px;
+  border-radius:50%;font-size:20px;cursor:pointer;flex:0 0 auto}
+.np-head button:hover{background:#e0413f}
+#npBody{list-style:none;margin:0;padding:.8em 1.4em 1.1em;overflow:auto}
+#npBody li{position:relative;color:#eaf0fb;font-size:clamp(16px,1.7vw,22px);line-height:1.4;
+  padding:.34em 0 .34em 1.35em;font-family:var(--fontBody)}
+#npBody li::before{content:"▸";position:absolute;left:0;color:#5fd1e0}
 </style>
 </head>
 <body class="theme-title">
@@ -590,6 +614,13 @@ h2{font-family:var(--fontHead);font-weight:700;line-height:1.07;font-size:62px}
 </div>
 <div class="kbd-hint">← → / Spacebar เปลี่ยนสไลด์</div>
 
+<!-- speaker notes (secret toggle) -->
+<div id="notesPanel">
+  <div class="np-head"><span id="npTitle">📝 โน้ตผู้พูด</span><button id="npClose" title="ปิด">×</button></div>
+  <ul id="npBody"></ul>
+</div>
+<button id="notesToggle" title="โน้ตผู้พูด (กด N)">📝</button>
+
 <script>
 /* ============================================================
    NAV / THEME / TIMELINE / PROGRESS
@@ -648,6 +679,7 @@ document.addEventListener('keydown',e=>{
   else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev();}
   else if(e.key==='Home')go(0);
   else if(e.key==='End')go(total-1);
+  else if(e.key==='n'||e.key==='N')toggleNotes();
 });
 
 /* ============================================================
@@ -812,6 +844,93 @@ show=function(i){
   if(slides[idx].id==='s-game'){startGame();}
   else if(leavingGame){gAudio.pause();}
 };
+
+/* ============================================================
+   SPEAKER NOTES — embedded; toggle with the faint 📝 button or "N"
+   ============================================================ */
+const NOTES=[
+  ['ทักทายผู้ฟัง แล้วแนะนำหัวข้อ: รูปแบบบทเพลงและวงดนตรีสากลในแต่ละยุคสมัย',
+   'บอกภาพรวม: จะพาชม 6 ยุค + ลักษณะบทเพลง 3 แบบ และปิดท้ายด้วยเกมทายเสียง',
+   'แนะนำสมาชิกกลุ่มสั้น ๆ'],
+  ['เกริ่นเข้าสู่ใบงานที่ 10 — รูปแบบบทเพลงและวงดนตรีสากล 6 ยุค',
+   'ชวนสังเกตว่าดนตรีเปลี่ยนไปตามสังคมและเทคโนโลยีของแต่ละยุค'],
+  ['ยุคกลาง ~ค.ศ. 500–1400 ดนตรีผูกกับศาสนาและโบสถ์เป็นหลัก',
+   'เพลงเด่น: Gregorian Chant ร้องแนวเสียงเดียว ไม่มีเครื่องดนตรีประกอบ',
+   'เริ่มมีการประสานเสียง เช่น Organum, Motet',
+   'เครื่องดนตรี: Lute, Recorder, Organ ในโบสถ์',
+   'กดปุ่ม ▶ ฟังตัวอย่าง Gregorian Chant สั้น ๆ'],
+  ['เรอเนสซองส์ ~1400–1600 ยุคฟื้นฟูศิลปะ การประสานเสียงรุ่งเรือง',
+   'Madrigal = เพลงขับร้องหลายแนวเสียง เนื้อหาทางโลกมากขึ้น',
+   'วงขับร้อง SATB และวง Consort (Lute/Recorder/Viol)',
+   'จุดเด่น: ความไพเราะกลมกลืนของเสียงประสาน',
+   'เปิดตัวอย่าง Madrigal ให้ฟัง'],
+  ['บาโรก ~1600–1750 ดนตรีหรูหรา วิจิตร ซับซ้อน',
+   'รูปแบบเด่น: Concerto Grosso, Fugue, Opera, Cantata',
+   'เครื่องเด่น: Harpsichord + Basso Continuo',
+   'นักประพันธ์: Bach, Vivaldi, Handel',
+   'เปิด Bach – Brandenburg Concerto No.3'],
+  ['คลาสสิก ~1750–1820 เน้นความสมดุล ชัดเจน สง่างาม',
+   'รูปแบบ: Symphony (4 ท่อน), Sonata Form, String Quartet',
+   'วงออร์เคสตราขนาดกลาง เปียโนเริ่มได้รับความนิยม',
+   'นักประพันธ์: Mozart, Haydn, Beethoven (ช่วงต้น)',
+   'เปิด Mozart – Symphony No.40'],
+  ['โรแมนติก ~1820–1900 เน้นอารมณ์ จินตนาการ ความเป็นตัวตน',
+   'รูปแบบ: Symphonic Poem, Lied, Nocturne / Étude',
+   'วงออร์เคสตราใหญ่ 80–100 คน และเปียโนเดี่ยว',
+   'นักประพันธ์: Chopin, Tchaikovsky, Wagner',
+   'เปิด Chopin – Nocturne Op.9 No.2'],
+  ['ยุคปัจจุบัน ~1900–ปัจจุบัน เทคโนโลยีและความหลากหลาย',
+   'แนว: Pop / Rock / Jazz / Hip-hop, Electronic, Film Score',
+   'เครื่อง/เครื่องมือ: กีตาร์ไฟฟ้า, ซินธ์, คอมพิวเตอร์, DJ',
+   'เผยแพร่ผ่านวิทยุ ทีวี และสตรีมมิง',
+   'เปิดตัวอย่าง Malcolm Todd – Earrings'],
+  ['เข้าสู่ใบงานที่ 11 — เจาะลึกลักษณะบทเพลง 3 แบบ',
+   'ได้แก่ เพลงกันตาตา, โอเวอร์เจอร์ และพ็อป'],
+  ['Cantata = บทเพลงขับร้องประกอบเครื่องดนตรี เกิดในยุคบาโรก',
+   'มีหลายท่อนสลับกัน: Aria, Recitative, Chorus, Duet',
+   'มีทั้งแบบศาสนา (Sacred) และทั่วไป (Secular)',
+   'Bach แต่งไว้กว่า 200 บท เช่น BWV 147',
+   'คล้ายโอเปร่าย่อส่วน แต่ไม่มีฉาก/การแสดงบนเวที',
+   'เปิด Bach – Cantata BWV 147'],
+  ['Overture = เพลงบรรเลงเปิดการแสดงโอเปร่าหรือละคร',
+   'หน้าที่: แนะนำทำนองหลักและอารมณ์ของเรื่องที่จะตามมา',
+   'Concert Overture เล่นเดี่ยวได้ ไม่ต้องมีการแสดงประกอบ',
+   'โครงสร้าง: Sonata Form หรือ 3 ท่อน (เร็ว-ช้า-เร็ว)',
+   'นักประพันธ์: Beethoven, Mendelssohn, Berlioz',
+   'เปิด Beethoven – Egmont Overture'],
+  ['Pop = เพลงสมัยใหม่ที่นิยมกว้างขวางทั่วโลก',
+   'โครงสร้างกระชับ จำง่าย: Verse–Chorus–Bridge',
+   'เครื่อง: กีตาร์ไฟฟ้า, กลองชุด, ซินธิไซเซอร์',
+   'เน้นเมโลดี้ไพเราะ + เนื้อร้องที่เข้าถึงง่าย',
+   'แนวย่อย: K-Pop, T-Pop, R&B, Dance Pop',
+   'เปิดตัวอย่างเพลงพ็อป'],
+  ['ชวนทุกคนเล่นเกม “ทายยุคจากเสียง”',
+   'กด ▶ เล่นเสียง (ภาพถูกซ่อน) ให้เพื่อนช่วยกันทาย',
+   'เลือกคำตอบ → เฉลยยุค + กดดูคลิปเต็มได้',
+   'ถ้าเวลาไม่พอ กด “ข้ามเกม →” ได้'],
+  ['สรุป timeline 6 ยุค: กลาง → ฟื้นฟู → บาโรก → คลาสสิก → โรแมนติก → ปัจจุบัน',
+   'ย้ำแนวคิด: ดนตรีพัฒนาต่อเนื่องตามสังคมและเทคโนโลยี',
+   'กล่าวขอบคุณ และเปิดโอกาสให้ซักถาม']
+];
+const notesPanel=document.getElementById('notesPanel');
+const notesToggle=document.getElementById('notesToggle');
+const npTitle=document.getElementById('npTitle');
+const npBody=document.getElementById('npBody');
+function renderNotes(){
+  const s=slides[idx], h=s.querySelector('h1,h2');
+  npTitle.textContent='📝 โน้ตผู้พูด · '+(h?h.textContent.trim():('สไลด์ '+(idx+1)));
+  npBody.innerHTML=(NOTES[idx]||['—']).map(t=>'<li>'+t+'</li>').join('');
+}
+function toggleNotes(){
+  const open=notesPanel.classList.toggle('open');
+  notesToggle.classList.toggle('on',open);
+  if(open)renderNotes();
+}
+notesToggle.addEventListener('click',toggleNotes);
+document.getElementById('npClose').addEventListener('click',()=>{notesPanel.classList.remove('open');notesToggle.classList.remove('on');});
+/* keep notes synced to the current slide while the panel is open */
+const _showNotes=show;
+show=function(i){_showNotes(i);if(notesPanel.classList.contains('open'))renderNotes();};
 
 /* fit the fixed 1600x900 canvas uniformly into the viewport */
 const deckEl=document.getElementById('deck');
