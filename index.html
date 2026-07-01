@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รูปแบบบทเพลงและวงดนตรีสากลในแต่ละยุคสมัย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   รูปแบบบทเพลงและวงดนตรีสากลในแต่ละยุคสมัย — ศ33101
+   Self-contained presentation. No build step.
+   ============================================================ */
+
+:root{
+  --t: 900ms cubic-bezier(.4,0,.2,1);
+  --fontHead:'Kanit',sans-serif;
+  --fontBody:'Sarabun',sans-serif;
+  /* default (overridden per theme) */
+  --bg:#1a1a1a; --bg2:#000; --fg:#fff; --muted:#cbb; --accent:#c79a4b; --accent2:#e0c178;
+  --panel:rgba(255,255,255,.06); --panelBd:rgba(255,255,255,.15);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--fontBody);
+  background:var(--bg);
+  color:var(--fg);
+  transition:background-color var(--t),color var(--t);
+  position:relative;
+}
+/* atmospheric gradient layer that recolours per theme */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 12% 8%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 60%),
+    radial-gradient(120% 90% at 92% 96%, color-mix(in srgb, var(--accent2) 22%, transparent), transparent 62%);
+  transition:background var(--t),opacity var(--t);
+}
+body::after{ /* subtle grain */
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- THEMES ---------- */
+body.theme-title{--bg:#160d1f;--fg:#f4ecdf;--muted:#cdbfd6;--accent:#c79a4b;--accent2:#d65a86}
+body.theme-divider10{--bg:#2a1a0c;--fg:#f6ead0;--muted:#d8c4a3;--accent:#d9b36c;--accent2:#b98a3c}
+body.theme-divider11{--bg:#101d33;--fg:#eef2fb;--muted:#b9c6e0;--accent:#5a86c9;--accent2:#d65a86}
+
+body.theme-medieval{--bg:#251c12;--fg:#f1e6cf;--muted:#cdba95;--accent:#c79a4b;--accent2:#9c7a36;
+  --panel:rgba(70,52,30,.42);--panelBd:rgba(199,154,75,.35)}
+body.theme-renaissance{--bg:#3a2c1a;--fg:#f7ecd2;--muted:#dcc69c;--accent:#e0c178;--accent2:#bb8f3f;
+  --panel:rgba(95,72,40,.40);--panelBd:rgba(224,193,120,.38)}
+body.theme-baroque{--bg:#260a11;--fg:#f3e2c4;--muted:#d8b58c;--accent:#d4af52;--accent2:#a32d44;
+  --panel:rgba(86,20,32,.46);--panelBd:rgba(212,175,82,.40)}
+body.theme-classical{--bg:#eee6d4;--fg:#16273f;--muted:#4a5b76;--accent:#1f3a63;--accent2:#9c6b1f;
+  --panel:rgba(255,255,255,.55);--panelBd:rgba(31,58,99,.28)}
+body.theme-romantic{--bg:#2a0f2e;--fg:#f8e4ee;--muted:#d9aec6;--accent:#e06a93;--accent2:#9c4fa8;
+  --panel:rgba(78,24,66,.45);--panelBd:rgba(224,106,147,.38)}
+body.theme-contemporary{--bg:#070b16;--fg:#eafcff;--muted:#bfe0ee;--accent:#00e5ff;--accent2:#ff2e97;
+  --panel:rgba(18,30,52,.55);--panelBd:rgba(0,229,255,.35)}
+body.theme-game{--bg:#0c1018;--fg:#eef3fb;--muted:#9fb0c8;--accent:#36d6c3;--accent2:#ffb43d;
+  --panel:rgba(22,30,46,.7);--panelBd:rgba(54,214,195,.3)}
+body.theme-closing{--bg:#120d1d;--fg:#f4ecdf;--muted:#c7bcd4;--accent:#d9b36c;--accent2:#00e5ff}
+
+/* ---------- DECK / SLIDES ---------- */
+/* fixed 16:9 design canvas — scaled uniformly to the viewport so every
+   slide is identically balanced & legible on any projector */
+.deck{position:absolute;z-index:1;width:1600px;height:900px;left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(var(--s,1));transform-origin:center center}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:70px 100px 130px;
+  opacity:0;visibility:hidden;transform:scale(.985);
+  transition:opacity .6s ease,transform .6s ease,visibility .6s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.active .reveal{animation:rise .7s both}
+.slide.active .reveal:nth-child(2){animation-delay:.08s}
+.slide.active .reveal:nth-child(3){animation-delay:.16s}
+.slide.active .reveal:nth-child(4){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-family:var(--fontHead);font-weight:600;letter-spacing:.3em;text-transform:uppercase;
+  font-size:21px;color:var(--accent);margin-bottom:.6em}
+h1{font-family:var(--fontHead);font-weight:800;line-height:1.05;
+  font-size:84px;letter-spacing:-.01em}
+h2{font-family:var(--fontHead);font-weight:700;line-height:1.07;font-size:62px}
+.sub{font-size:33px;color:var(--muted);font-weight:400;line-height:1.3}
+
+/* ---------- TITLE SLIDE ---------- */
+#s-title{align-items:flex-start}
+#s-title h1{max-width:16ch;background:linear-gradient(100deg,var(--fg),var(--accent2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.title-meta{margin-top:48px;display:flex;flex-direction:column;gap:.6em;font-size:31px;font-weight:500}
+.title-meta b{font-family:var(--fontHead);font-weight:600;color:var(--accent)}
+.title-deco{position:absolute;right:100px;top:50%;transform:translateY(-50%);
+  font-family:var(--fontHead);font-weight:800;font-size:400px;line-height:.8;
+  opacity:.10;color:var(--accent);pointer-events:none;user-select:none}
+
+/* ---------- DIVIDER SLIDES ---------- */
+.divider{align-items:flex-start;justify-content:center}
+.divider .big-no{font-family:var(--fontHead);font-weight:800;font-size:230px;
+  line-height:.85;color:var(--accent);opacity:.92}
+.divider h2{max-width:18ch;margin-top:.15em}
+.divider .sub{margin-top:1em;max-width:40ch}
+
+/* ---------- ERA / TYPE CONTENT ---------- */
+.era-head{display:flex;align-items:baseline;gap:.7em;flex-wrap:wrap;margin-bottom:22px}
+.era-head .num{font-family:var(--fontHead);font-weight:800;color:var(--accent);
+  font-size:44px;opacity:.9}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.era-img-wrap{grid-column:1/-1;display:grid;grid-template-columns:260px 1fr 1fr;gap:44px;align-items:stretch}
+.era-img{width:260px;border-radius:14px;overflow:hidden;position:relative;
+  border:1px solid var(--panelBd);background:var(--panel);box-shadow:0 18px 50px rgba(0,0,0,.4);
+  align-self:center}
+.era-img img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:3/4}
+.era-img .cap{position:absolute;left:0;right:0;bottom:0;padding:.6em .8em;
+  font-family:var(--fontHead);font-size:17px;font-weight:500;
+  background:linear-gradient(transparent,rgba(0,0,0,.55),rgba(0,0,0,.9));color:#fff}
+.era-img .imgfallback{display:none;aspect-ratio:3/4;align-items:center;justify-content:center;font-size:96px}
+.era-img.failed img{display:none}
+.era-img.failed .imgfallback{display:flex}
+
+.panel{background:var(--panel);border:1px solid var(--panelBd);border-radius:16px;
+  padding:26px 32px;backdrop-filter:blur(6px);
+  transition:background-color var(--t),border-color var(--t)}
+.panel h3{font-family:var(--fontHead);font-weight:600;font-size:35px;
+  color:var(--accent);margin-bottom:.5em;display:flex;align-items:center;gap:.4em}
+.panel ul{list-style:none}
+.panel li{font-size:30px;line-height:1.34;padding:.36em 0 .36em 1.3em;
+  position:relative;font-weight:400;border-bottom:1px solid color-mix(in srgb,var(--panelBd) 55%,transparent)}
+.panel li:last-child{border-bottom:none}
+.panel li::before{content:"◆";position:absolute;left:0;color:var(--accent2);font-size:.7em;top:.85em}
+.panel li b{font-weight:600}
+
+/* description-style panels (worksheet 11) */
+.desc{max-width:66ch}
+.desc li{padding:.4em 0 .4em 1.5em;font-size:31px;line-height:1.42}
+.desc li::before{content:"♪";top:.5em;font-size:.85em}
+
+/* ---------- LISTEN BUTTON ---------- */
+.listen-btn{position:absolute;top:38px;right:100px;z-index:5;text-decoration:none;
+  font-family:var(--fontHead);font-weight:600;font-size:24px;
+  color:var(--bg);background:var(--accent);border:none;cursor:pointer;
+  padding:.7em 1.4em;border-radius:999px;display:inline-flex;align-items:center;gap:.5em;
+  box-shadow:0 8px 26px color-mix(in srgb,var(--accent) 50%,transparent);
+  transition:transform .2s,box-shadow .2s,background var(--t)}
+.listen-btn:hover{transform:translateY(-2px) scale(1.03);
+  box-shadow:0 12px 34px color-mix(in srgb,var(--accent) 60%,transparent)}
+.listen-btn .pulse{width:.8em;height:.8em;border-radius:50%;background:var(--bg);
+  box-shadow:0 0 0 0 currentColor;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--bg) 70%,transparent)}
+  70%{box-shadow:0 0 0 .7em transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+/* ---------- CHROME: counter, progress, nav, timeline ---------- */
+.progress{position:fixed;left:0;top:0;height:6px;background:var(--accent);z-index:40;
+  width:0;transition:width .5s ease,background var(--t);box-shadow:0 0 12px var(--accent)}
+.counter{position:fixed;top:clamp(16px,2.6vh,28px);left:clamp(24px,3vw,46px);z-index:30;
+  font-family:var(--fontHead);font-weight:700;font-size:clamp(18px,1.8vw,26px);color:var(--fg);
+  letter-spacing:.06em;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.counter b{color:var(--accent)}
+
+.nav{position:fixed;bottom:clamp(16px,2.6vh,26px);right:clamp(24px,3vw,46px);z-index:30;display:flex;gap:10px}
+.nav button{width:clamp(54px,4.2vw,72px);height:clamp(54px,4.2vw,72px);border-radius:50%;
+  background:var(--panel);border:2px solid var(--panelBd);color:var(--fg);cursor:pointer;
+  font-size:clamp(24px,2.4vw,32px);display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,background .2s}
+.nav button:hover{transform:translateY(-2px);background:var(--accent);color:var(--bg)}
+.nav button:disabled{opacity:.3;cursor:default;transform:none;background:var(--panel);color:var(--fg)}
+
+/* timeline */
+.timeline{position:fixed;left:50%;transform:translateX(-50%);bottom:clamp(16px,2.6vh,28px);z-index:30;
+  display:flex;align-items:center;gap:clamp(12px,1.6vw,24px);
+  background:var(--panel);border:1px solid var(--panelBd);border-radius:999px;
+  padding:.6em clamp(16px,1.8vw,26px);backdrop-filter:blur(8px)}
+.tl-dot{position:relative;width:clamp(22px,2vw,28px);height:clamp(22px,2vw,28px);border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);background:var(--c);cursor:pointer;
+  transition:transform .25s,box-shadow .25s;opacity:.6}
+.tl-dot:hover{transform:scale(1.3);opacity:1}
+.tl-dot.on{opacity:1;transform:scale(1.4);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 45%,transparent),0 0 18px var(--c)}
+.tl-dot .tip{position:absolute;bottom:175%;left:50%;transform:translateX(-50%) translateY(6px);
+  font-family:var(--fontHead);font-size:17px;font-weight:600;white-space:nowrap;
+  background:#000;color:#fff;padding:.35em .8em;border-radius:8px;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s}
+.tl-dot:hover .tip{opacity:.97;transform:translateX(-50%) translateY(0)}
+.tl-line{width:clamp(14px,1.6vw,26px);height:3px;background:rgba(255,255,255,.22);border-radius:2px}
+
+/* ---------- VIDEO MODAL ---------- */
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(6px);padding:4vh 4vw}
+.modal.open{display:flex;animation:fade .3s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-box{width:min(1100px,92vw);background:#0a0a0a;border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.7);animation:rise .4s}
+.modal-bar{display:flex;align-items:center;justify-content:space-between;padding:.8em 1.2em;
+  font-family:var(--fontHead);font-weight:600;color:#fff;font-size:clamp(15px,1.7vw,22px)}
+.modal-close{background:rgba(255,255,255,.12);border:none;color:#fff;width:40px;height:40px;
+  border-radius:50%;font-size:22px;cursor:pointer;transition:background .2s}
+.modal-close:hover{background:#e0413f}
+.modal-video{position:relative;aspect-ratio:16/9;background:#000}
+.modal-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.modal-note{padding:.7em 1.2em;font-size:14px;color:#aaa;border-top:1px solid rgba(255,255,255,.08)}
+
+/* ---------- GAME ---------- */
+.game-wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:44px;align-items:center;
+  max-width:1340px;margin:0 auto;width:100%}
+.game-stage{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;
+  border:1px solid var(--panelBd);background:#05080f;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.game-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:1}
+.game-cover{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.1em;cursor:default;
+  background:
+    radial-gradient(60% 60% at 50% 40%, color-mix(in srgb,var(--accent) 30%,transparent), transparent),
+    repeating-linear-gradient(45deg,#0c1320,#0c1320 14px,#0f1828 14px,#0f1828 28px)}
+.game-cover.hidden{display:none}
+.game-cover .qmark{font-family:var(--fontHead);font-weight:800;font-size:120px;
+  color:color-mix(in srgb,var(--accent) 80%,#fff);opacity:.9;line-height:1}
+.play-circle{width:108px;height:108px;border-radius:50%;
+  background:var(--accent);color:#05080f;border:none;cursor:pointer;font-size:46px;
+  display:flex;align-items:center;justify-content:center;padding-left:.12em;
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);animation:pulse2 2s infinite;
+  transition:transform .2s}
+.play-circle:hover{transform:scale(1.07)}
+@keyframes pulse2{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
+  70%{box-shadow:0 0 0 26px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.game-cover .hint{font-family:var(--fontHead);font-weight:500;color:#cdd8ea;font-size:20px;opacity:.85;max-width:78%;text-align:center;line-height:1.35}
+.play-circle{text-decoration:none}
+.game-reveal{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.6em;text-align:center;padding:34px;
+  background:radial-gradient(60% 60% at 50% 38%, color-mix(in srgb,var(--accent) 22%,transparent), transparent),#0b1220}
+.game-reveal[hidden]{display:none}
+.rv-era{font-family:var(--fontHead);font-weight:800;font-size:42px;line-height:1.1}
+.rv-info{font-size:24px;color:#cdd8ea;max-width:84%;line-height:1.35}
+.game-reveal .gbtn{margin-top:.3em;text-decoration:none}
+
+.game-panel{display:flex;flex-direction:column;gap:18px}
+.game-q{font-family:var(--fontHead);font-weight:600;font-size:33px}
+.game-q small{display:block;color:var(--muted);font-weight:300;font-size:.6em;margin-top:.25em}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.opt{font-family:var(--fontHead);font-weight:500;font-size:24px;
+  padding:.7em 1em;border-radius:12px;cursor:pointer;text-align:left;
+  background:var(--panel);border:1.5px solid var(--panelBd);color:var(--fg);
+  transition:transform .15s,background .2s,border-color .2s}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{background:#1f7a45;border-color:#3fd680;color:#fff}
+.opt.wrong{background:#7a1f2b;border-color:#e0413f;color:#fff}
+.game-feedback{min-height:2.6em;font-size:23px;line-height:1.38;font-weight:400}
+.game-feedback .ok{color:#5fe39b;font-family:var(--fontHead);font-weight:600}
+.game-feedback .no{color:#ff7a86;font-family:var(--fontHead);font-weight:600}
+.game-bar{display:flex;align-items:center;gap:1em;flex-wrap:wrap}
+.score{font-family:var(--fontHead);font-weight:700;font-size:27px;color:var(--accent)}
+.gbtn{font-family:var(--fontHead);font-weight:600;font-size:21px;cursor:pointer;
+  padding:.55em 1.3em;border-radius:999px;border:1.5px solid var(--accent);background:var(--accent);
+  color:var(--bg);transition:transform .15s,opacity .2s}
+.gbtn.ghost{background:transparent;color:var(--accent)}
+.gbtn:hover{transform:translateY(-2px)}
+.gbtn[hidden]{display:none}
+
+/* ---------- CLOSING TIMELINE ---------- */
+.closeline{display:flex;gap:0;margin-top:42px;width:100%;
+  border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.cl-era{flex:1;padding:28px 20px;position:relative;
+  border-right:1px solid rgba(0,0,0,.25);min-height:320px;
+  display:flex;flex-direction:column;justify-content:flex-end;transition:flex .4s}
+.cl-era:last-child{border-right:none}
+.cl-era:hover{flex:1.5}
+.cl-era .ord{font-family:var(--fontHead);font-weight:800;font-size:36px;opacity:.5}
+.cl-era .nm{font-family:var(--fontHead);font-weight:700;font-size:25px;margin:.2em 0}
+.cl-era .yr{font-size:17px;opacity:.85}
+.cl-era .kw{font-size:18px;margin-top:.5em;opacity:.92;line-height:1.32}
+
+.kbd-hint{position:fixed;bottom:clamp(16px,2.6vh,26px);left:clamp(24px,3vw,46px);z-index:30;
+  font-size:13px;color:var(--muted);opacity:.6;font-family:var(--fontHead)}
+@media (max-width:1100px){.kbd-hint{display:none}}
+</style>
+</head>
+<body class="theme-title">
+
+<div class="progress" id="progress"></div>
+<div class="counter"><b id="cur">1</b> / <span id="total">14</span></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1. TITLE -->
+  <section class="slide" data-theme="title" id="s-title">
+    <div class="title-deco">♪</div>
+    <div class="eyebrow reveal">ศิลปะพื้นฐาน 5 · ศ33101</div>
+    <h1 class="reveal">รูปแบบบทเพลงและวงดนตรีสากล<br>ในแต่ละยุคสมัย</h1>
+    <div class="title-meta reveal">
+      <div>ระดับชั้น : <b>มัธยมศึกษาปีที่ 6/7</b></div>
+      <div>รายวิชา : ศิลปะพื้นฐาน 5 (ศ33101)</div>
+      <div>มาตรฐาน ศ 2.2 ม.4–6/1 : วิเคราะห์รูปแบบของดนตรีในยุคสมัยต่าง ๆ</div>
+    </div>
+  </section>
+
+  <!-- 2. DIVIDER ใบงาน 10 -->
+  <section class="slide divider" data-theme="divider10">
+    <div class="big-no reveal">10</div>
+    <h2 class="reveal">ใบงานที่ 10<br>รูปแบบบทเพลงและวงดนตรีสากล</h2>
+    <p class="sub reveal">เดินทางผ่าน 6 ยุคสมัยของดนตรีตะวันตก — สมัยกลาง สู่ปัจจุบัน</p>
+  </section>
+
+  <!-- 3. สมัยกลาง -->
+  <section class="slide era" data-theme="medieval" data-era="0">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="VNmxfy_wEYg" data-title="ตัวอย่าง: Gregorian Chant (สมัยกลาง)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 1</span><h2>สมัยกลาง</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Medieval · ค.ศ. 500–1400 · ดนตรีในโบสถ์และราชสำนัก</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Graduale_Aboense_2.jpg/330px-Graduale_Aboense_2.jpg" alt="ต้นฉบับเพลงสวด Gregorian" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">📜</div>
+        <figcaption class="cap">ต้นฉบับเพลงสวด · Wikimedia Commons (PD)</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li>เพลงสวด <b>Gregorian Chant</b> (1 แนวเสียง)</li>
+        <li><b>Troubadour Song</b> เพลงนักร้องพเนจร</li>
+        <li><b>Organum</b> ร้องประสานหลายแนวเสียง</li>
+        <li><b>Motet</b> บทเพลงหลายแนวเสียงศาสนา</li>
+        <li><b>Estampie</b> บทเพลงบรรเลงเต้นรำ</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li>วงขับร้องประสานเสียง (<b>Choir</b>)</li>
+        <li><b>Lute</b> พิณยุคกลาง</li>
+        <li><b>Recorder</b> ขลุ่ยไม้</li>
+        <li><b>Vielle</b> ไวโอลินยุคกลาง</li>
+        <li><b>Organ</b> ออร์แกนในโบสถ์</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 4. สมัยฟื้นฟูศิลปวิทยา -->
+  <section class="slide era" data-theme="renaissance" data-era="1">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="DIZDxaF511I" data-title="ตัวอย่าง: Renaissance Madrigal (สมัยฟื้นฟูศิลปวิทยา)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 2</span><h2>สมัยฟื้นฟูศิลปวิทยา</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Renaissance · ค.ศ. 1400–1600 · ความรุ่งเรืองของการประสานเสียง</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/The_Concert_A22894.jpg/330px-The_Concert_A22894.jpg" alt="ภาพวาด The Concert ยุคเรอเนสซองส์" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">🎻</div>
+        <figcaption class="cap">“The Concert” · Wikimedia Commons (PD)</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li><b>Madrigal</b> เพลงขับร้องหลายแนวเสียง</li>
+        <li><b>Mass / Motet</b> เพลงพิธีทางศาสนา</li>
+        <li><b>Chanson</b> เพลงภาษาฝรั่งเศส</li>
+        <li><b>Ricercar / Fantasia</b> เพลงบรรเลง</li>
+        <li><b>Frottola</b> เพลงพื้นบ้านอิตาลี</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li>วงขับร้อง <b>SATB Choir</b></li>
+        <li><b>Lute Consort</b> วงพิณ</li>
+        <li><b>Recorder Consort</b> วงขลุ่ย</li>
+        <li><b>Viol Consort</b> (Viola da gamba)</li>
+        <li><b>Mixed Consort</b> วงผสม</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 5. สมัยบาโรก -->
+  <section class="slide era" data-theme="baroque" data-era="2">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="pdsyNwUoON0" data-title="ตัวอย่าง: Bach – Brandenburg Concerto No.3 (สมัยบาโรก)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 3</span><h2>สมัยบาโรก</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Baroque · ค.ศ. 1600–1750 · ความหรูหรา วิจิตร และซับซ้อน</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Johann_Sebastian_Bach.jpg/330px-Johann_Sebastian_Bach.jpg" alt="โยฮันน์ เซบาสเตียน บาค" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">🎼</div>
+        <figcaption class="cap">J. S. Bach · Wikimedia Commons (PD)</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li><b>Concerto Grosso</b> คอนแชร์โตกรอสโซ</li>
+        <li><b>Fugue</b> ฟิวก์ (เลียนแบบทำนอง)</li>
+        <li><b>Sonata</b> โซนาตา</li>
+        <li><b>Cantata / Oratorio</b> บทเพลงขับร้อง</li>
+        <li><b>Opera</b> โอเปร่า</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li><b>Baroque Orchestra</b> วงขนาดเล็ก</li>
+        <li><b>Basso Continuo</b> (Harpsichord+Cello)</li>
+        <li><b>Harpsichord</b> ฮาร์ปซิคอร์ด</li>
+        <li><b>Chamber Ensemble</b> วงแชมเบอร์</li>
+        <li><b>Organ</b> ออร์แกนโบสถ์</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 6. สมัยคลาสสิก -->
+  <section class="slide era" data-theme="classical" data-era="3">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="Q4sJuUPv7Uw" data-title="ตัวอย่าง: Mozart – Symphony No.40 (สมัยคลาสสิก)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 4</span><h2>สมัยคลาสสิก</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Classical · ค.ศ. 1750–1820 · ความสมดุล ชัดเจน และสง่างาม</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/The_Mozart_Family_-_Wolfgang_Amadeus_Mozart_headshot.jpg/330px-The_Mozart_Family_-_Wolfgang_Amadeus_Mozart_headshot.jpg" alt="โวล์ฟกัง อะมาเดอุส โมสาร์ท" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">🎹</div>
+        <figcaption class="cap">W. A. Mozart · Wikimedia Commons (PD)</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li><b>Symphony</b> ซิมโฟนี (4 ท่อน)</li>
+        <li><b>Concerto</b> คอนแชร์โตเดี่ยว</li>
+        <li><b>Sonata Form</b> โซนาตาฟอร์ม</li>
+        <li><b>String Quartet</b> ควอเตตเครื่องสาย</li>
+        <li><b>Opera / Singspiel</b> โอเปร่า</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li><b>Classical Orchestra</b> วงขนาดกลาง</li>
+        <li><b>String Quartet</b> วงสี่ชิ้น</li>
+        <li><b>Piano</b> (Pianoforte) เปียโน</li>
+        <li><b>Piano Trio</b> เปียโนไตรโอ</li>
+        <li><b>Chamber Ensemble</b></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 7. สมัยโรแมนติก -->
+  <section class="slide era" data-theme="romantic" data-era="4">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="YGRO05WcNDk" data-title="ตัวอย่าง: Chopin – Nocturne Op.9 No.2 (สมัยโรแมนติก)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 5</span><h2>สมัยโรแมนติก</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Romantic · ค.ศ. 1820–1900 · อารมณ์ จินตนาการ และความเป็นปัจเจก</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Frederic_Chopin_photo.jpeg/330px-Frederic_Chopin_photo.jpeg" alt="เฟรเดริก โชแปง" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">🎵</div>
+        <figcaption class="cap">F. Chopin · Wikimedia Commons (PD)</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li><b>Symphonic Poem</b> บทกวีออร์เคสตรา</li>
+        <li><b>Art Song / Lied</b> เพลงศิลปะขับร้อง</li>
+        <li><b>Opera / Music Drama</b> โอเปร่าขนาดใหญ่</li>
+        <li><b>Nocturne, Étude, Prelude</b> เปียโน</li>
+        <li><b>Concerto Romantique</b> คอนแชร์โต</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li><b>Full Orchestra</b> วงใหญ่ 80–100 คน</li>
+        <li><b>Piano Solo</b> เปียโนเดี่ยว</li>
+        <li><b>Chamber Ensemble</b> วงแชมเบอร์</li>
+        <li><b>Lied Ensemble</b> เสียงร้อง+เปียโน</li>
+        <li><b>Brass Ensemble</b> วงเครื่องทองเหลือง</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 8. สมัยปัจจุบัน -->
+  <section class="slide era" data-theme="contemporary" data-era="5">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="a4tdS3IB294" data-title="ตัวอย่าง: Malcolm Todd – Earrings (เพลงป๊อปร่วมสมัย)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">ยุคที่ 6</span><h2>สมัยปัจจุบัน</h2></div>
+    <p class="sub reveal" style="margin-bottom:.6em">Contemporary · ค.ศ. 1900–ปัจจุบัน · เทคโนโลยีและความหลากหลาย</p>
+    <div class="era-img-wrap reveal">
+      <figure class="era-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/R.A.Moog_minimoog_2.jpg/330px-R.A.Moog_minimoog_2.jpg" alt="ซินธิไซเซอร์ Minimoog" loading="lazy" onerror="this.closest('.era-img').classList.add('failed')">
+        <div class="imgfallback">🎛️</div>
+        <figcaption class="cap">ซินธิไซเซอร์ (Minimoog) · Wikimedia Commons</figcaption>
+      </figure>
+      <div class="panel"><h3>☻ รูปแบบบทเพลงสากล</h3><ul>
+        <li><b>Pop / Rock / Jazz / Hip-hop</b></li>
+        <li><b>Electronic Music</b> ดนตรีอิเล็กทรอนิกส์</li>
+        <li><b>Film Score</b> ดนตรีประกอบภาพยนตร์</li>
+        <li><b>Minimalism</b> แนวมินิมอล</li>
+        <li><b>Fusion</b> ผสมผสานหลายแนวดนตรี</li>
+      </ul></div>
+      <div class="panel"><h3>☻ วงดนตรีสากล</h3><ul>
+        <li><b>Rock Band</b> กีตาร์+เบส+กลอง</li>
+        <li><b>Big Band / Jazz Band</b></li>
+        <li><b>Electronic / DJ</b> โปรดิวเซอร์</li>
+        <li><b>Modern Orchestra</b> วงออร์เคสตรา</li>
+        <li><b>Studio Production</b> ห้องบันทึกเสียง</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 9. DIVIDER ใบงาน 11 -->
+  <section class="slide divider" data-theme="divider11">
+    <div class="big-no reveal">11</div>
+    <h2 class="reveal">ใบงานที่ 11<br>ลักษณะของบทเพลงสากล</h2>
+    <p class="sub reveal">เจาะลึก 3 รูปแบบเด่น — กันตาตา · โอเวอร์เจอร์ · พ็อป</p>
+  </section>
+
+  <!-- 10. เพลงกันตาตา -->
+  <section class="slide" data-theme="baroque">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="UMNof7QZuGo" data-title="ตัวอย่าง: Bach – Cantata BWV 147 (เพลงกันตาตา)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">♬</span><h2>เพลงกันตาตา <span style="font-weight:300;font-size:.5em;color:var(--muted)">Cantata</span></h2></div>
+    <div class="panel desc reveal" style="margin-top:.5em"><ul>
+      <li>บทเพลง<b>ขับร้องประกอบเครื่องดนตรี</b> มีต้นกำเนิดในยุคบาโรก</li>
+      <li>ประกอบด้วยหลายท่อน — <b>Aria, Recitative, Chorus, Duet</b> สลับกัน</li>
+      <li>มีทั้งแบบ<b>ศาสนา</b> (Sacred) และแบบ<b>ทั่วไป</b> (Secular)</li>
+      <li>นักประพันธ์ชื่อดัง เช่น <b>J. S. Bach</b> แต่งไว้กว่า 200 บท</li>
+      <li>ใช้ขับร้องในพิธีทางศาสนาในโบสถ์หรืองานสำคัญต่าง ๆ</li>
+      <li>มีลักษณะคล้าย<b>โอเปร่าย่อส่วน</b> แต่ไม่มีฉากหรือการแสดงบนเวที</li>
+    </ul></div>
+  </section>
+
+  <!-- 11. เพลงโอเวอร์เจอร์ -->
+  <section class="slide" data-theme="classical">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="0oaazxCPNwU" data-title="ตัวอย่าง: Beethoven – Egmont Overture (เพลงโอเวอร์เจอร์)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">♬</span><h2>เพลงโอเวอร์เจอร์ <span style="font-weight:300;font-size:.5em;color:var(--muted)">Overture</span></h2></div>
+    <div class="panel desc reveal" style="margin-top:.5em"><ul>
+      <li>บทเพลง<b>บรรเลง</b>ที่ใช้<b>เปิดการแสดง</b>โอเปร่าหรือละครเวที</li>
+      <li>บรรเลงโดยวงออร์เคสตรา เพื่อแนะนำทำนองหลักและอารมณ์ของการแสดง</li>
+      <li>มีต้นกำเนิดยุคบาโรก พัฒนาต่อเนื่องในคลาสสิกและโรแมนติก</li>
+      <li><b>Concert Overture</b> แสดงเป็นอิสระได้ โดยไม่ต้องประกอบการแสดง</li>
+      <li>มักมีโครงสร้าง <b>Sonata Form</b> หรือ 3 ท่อน (เร็ว–ช้า–เร็ว)</li>
+      <li>นักประพันธ์ชื่อดัง เช่น <b>Beethoven, Mendelssohn, Berlioz</b></li>
+    </ul></div>
+  </section>
+
+  <!-- 12. เพลงพ็อป -->
+  <section class="slide" data-theme="contemporary">
+    <a class="listen-btn" target="_blank" rel="noopener" data-video="2Vv-BfVoq4g" data-title="ตัวอย่าง: Ed Sheeran – Perfect (โครงสร้าง Verse–Chorus–Bridge)"><span class="pulse"></span>▶ ฟังตัวอย่าง</a>
+    <div class="era-head reveal"><span class="num">♬</span><h2>เพลงพ็อป <span style="font-weight:300;font-size:.5em;color:var(--muted)">Pop</span></h2></div>
+    <div class="panel desc reveal" style="margin-top:.5em"><ul>
+      <li>แนวเพลง<b>สมัยใหม่</b>ที่ได้รับความนิยมอย่างกว้างขวางทั่วโลก</li>
+      <li>โครงสร้างกระชับ จดจำง่าย ใช้ <b>Verse–Chorus–Bridge</b> ซ้ำ ๆ</li>
+      <li>ใช้เครื่องดนตรีสมัยใหม่ — <b>กีตาร์ไฟฟ้า กลองชุด ซินธิไซเซอร์</b></li>
+      <li>เน้น<b>เมโลดี้ไพเราะ</b>และเนื้อร้องที่เข้าถึงง่าย สื่ออารมณ์ชัดเจน</li>
+      <li>เผยแพร่ผ่านวิทยุ โทรทัศน์ และสตรีมมิง เช่น <b>Spotify</b></li>
+      <li>มีแนวย่อย เช่น <b>K-Pop, T-Pop, R&amp;B, Dance Pop, Indie Pop</b></li>
+    </ul></div>
+  </section>
+
+  <!-- 13. GAME -->
+  <section class="slide" data-theme="game" id="s-game">
+    <div class="era-head reveal" style="justify-content:center;text-align:center;flex-direction:column;gap:.1em;align-items:center;margin-bottom:.4em">
+      <h2>🎧 ทายให้ถูก! ฟังแล้วเดาว่าเป็นยุคไหน</h2>
+      <p class="sub">แตะ ▶ ฟังเสียง (ไม่โชว์ภาพ/ชื่อเพลง) แล้วช่วยกันทายว่าเป็นยุคไหน — เฉลยหลังตอบ</p>
+    </div>
+    <div class="game-wrap reveal">
+      <div class="game-stage">
+        <audio id="gameAudio" preload="none"></audio>
+        <div class="game-cover" id="gameCover">
+          <div class="qmark">?</div>
+          <button class="play-circle" id="gamePlay" title="เล่น/หยุดเสียง">▶</button>
+          <div class="hint">แตะ ▶ เพื่อฟัง “เสียง” (ภาพถูกซ่อนไว้) แล้วช่วยกันทายว่าเป็นยุค/ประเภทใด</div>
+        </div>
+        <div class="game-reveal" id="gameReveal" hidden>
+          <div class="rv-era" id="rvEra"></div>
+          <div class="rv-info" id="rvInfo"></div>
+          <a class="gbtn" id="rvLink" target="_blank" rel="noopener">▶ ดูคลิปเต็มบน YouTube</a>
+        </div>
+      </div>
+      <div class="game-panel">
+        <div class="game-q">ข้อ <span id="qNo">1</span> — นี่คือดนตรีจากยุค/ประเภทใด?<small id="qHint">กดปุ่ม ▶ เพื่อเริ่มฟัง</small></div>
+        <div class="opts" id="opts"></div>
+        <div class="game-feedback" id="feedback"></div>
+        <div class="game-bar">
+          <span class="score" id="score">ถูก 0/0</span>
+          <button class="gbtn" id="nextBtn" hidden>ข้อถัดไป →</button>
+          <button class="gbtn" id="replayBtn" hidden>🔄 เล่นใหม่</button>
+          <button class="gbtn ghost" id="skipGame">ข้ามเกม →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. CLOSING -->
+  <section class="slide" data-theme="closing">
+    <div class="eyebrow reveal">สรุปภาพรวม</div>
+    <h2 class="reveal">เส้นเวลา 6 ยุคของดนตรีสากล</h2>
+    <div class="closeline reveal" id="closeline"></div>
+    <p class="sub reveal" style="margin-top:1.2em;text-align:center">ขอบคุณครับ/ค่ะ 🎵 — คลิกแต่ละยุคบนแถบ Timeline ด้านล่างเพื่อย้อนกลับไปทบทวนได้</p>
+  </section>
+
+</div>
+
+<!-- timeline -->
+<div class="timeline" id="timeline"></div>
+
+<!-- nav -->
+<div class="nav">
+  <button id="prev" title="ก่อนหน้า (←)">‹</button>
+  <button id="next" title="ถัดไป (→)">›</button>
+</div>
+<div class="kbd-hint">← → / Spacebar เปลี่ยนสไลด์</div>
+
+<script>
+/* ============================================================
+   NAV / THEME / TIMELINE / PROGRESS
+   ============================================================ */
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+document.getElementById('total').textContent=total;
+let idx=0;
+
+const ERA_META=[
+  {key:'medieval',    name:'สมัยกลาง',           c:'#b98a3c'},
+  {key:'renaissance', name:'สมัยฟื้นฟูศิลปวิทยา', c:'#e0c178'},
+  {key:'baroque',     name:'สมัยบาโรก',          c:'#c9a24b'},
+  {key:'classical',   name:'สมัยคลาสสิก',        c:'#2f5a9e'},
+  {key:'romantic',    name:'สมัยโรแมนติก',       c:'#e06a93'},
+  {key:'contemporary',name:'สมัยปัจจุบัน',       c:'#00e5ff'}
+];
+// first slide index for each era
+const eraSlide=ERA_META.map((_,i)=>slides.findIndex(s=>s.dataset.era==String(i)));
+
+/* build timeline */
+const tl=document.getElementById('timeline');
+ERA_META.forEach((e,i)=>{
+  if(i>0){const ln=document.createElement('div');ln.className='tl-line';tl.appendChild(ln);}
+  const d=document.createElement('button');
+  d.className='tl-dot';d.style.setProperty('--c',e.c);
+  d.dataset.target=eraSlide[i];
+  d.innerHTML='<span class="tip">'+e.name+'</span>';
+  d.addEventListener('click',()=>go(eraSlide[i]));
+  tl.appendChild(d);
+});
+const tlDots=[...tl.querySelectorAll('.tl-dot')];
+
+function show(i){
+  slides[idx].classList.remove('active');
+  idx=Math.max(0,Math.min(total-1,i));
+  const s=slides[idx];
+  s.classList.add('active');
+  document.body.className='theme-'+s.dataset.theme;
+  document.getElementById('cur').textContent=idx+1;
+  document.getElementById('progress').style.width=((idx+1)/total*100)+'%';
+  const era=s.dataset.era;
+  tlDots.forEach((d,k)=>d.classList.toggle('on',String(k)===era));
+  document.getElementById('prev').disabled=idx===0;
+  document.getElementById('next').disabled=idx===total-1;
+}
+function go(i){show(i)}
+function next(){if(idx<total-1)show(idx+1)}
+function prev(){if(idx>0)show(idx-1)}
+
+document.getElementById('next').addEventListener('click',next);
+document.getElementById('prev').addEventListener('click',prev);
+
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();next();}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev();}
+  else if(e.key==='Home')go(0);
+  else if(e.key==='End')go(total-1);
+});
+
+/* ============================================================
+   "ฟังตัวอย่าง" buttons -> open the real YouTube page in a new tab.
+   Using plain <a target="_blank"> links is the most reliable path on
+   locked-down classroom panels (no iframe/embed, no popup blocker).
+   ============================================================ */
+document.querySelectorAll('.listen-btn').forEach(b=>{
+  b.href='https://www.youtube.com/watch?v='+b.dataset.video;
+});
+
+/* ============================================================
+   CLOSING TIMELINE STRIP
+   ============================================================ */
+const CL=[
+  {ord:'I',  name:'สมัยกลาง',           yr:'500–1400',  kw:'Gregorian Chant · เสียงเดียว · โบสถ์', c:'#b98a3c',fg:'#fff'},
+  {ord:'II', name:'ฟื้นฟูศิลปวิทยา',     yr:'1400–1600', kw:'Madrigal · ประสานเสียง SATB', c:'#d9b36c',fg:'#2a1a0c'},
+  {ord:'III',name:'บาโรก',             yr:'1600–1750', kw:'Concerto Grosso · Fugue · Harpsichord', c:'#7a1f2e',fg:'#fff'},
+  {ord:'IV', name:'คลาสสิก',           yr:'1750–1820', kw:'Symphony · Sonata Form · สมดุล', c:'#2f5a9e',fg:'#fff'},
+  {ord:'V',  name:'โรแมนติก',          yr:'1820–1900', kw:'Lied · Nocturne · อารมณ์ลึกซึ้ง', c:'#a8457f',fg:'#fff'},
+  {ord:'VI', name:'ปัจจุบัน',           yr:'1900–now',  kw:'Pop · Electronic · Film Score', c:'#0a6e7a',fg:'#eafcff'}
+];
+const cline=document.getElementById('closeline');
+CL.forEach((e,i)=>{
+  const d=document.createElement('div');
+  d.className='cl-era';d.style.background=e.c;d.style.color=e.fg;
+  d.innerHTML='<div class="ord">'+e.ord+'</div><div class="nm">'+e.name+'</div>'+
+    '<div class="yr">ค.ศ. '+e.yr+'</div><div class="kw">'+e.kw+'</div>';
+  d.style.cursor='pointer';
+  if(eraSlide[i]>=0)d.addEventListener('click',()=>go(eraSlide[i]));
+  cline.appendChild(d);
+});
+
+/* ============================================================
+   GUESS-THE-ERA GAME
+   - plays public-domain AUDIO in-page (no video/title shown) before the guess
+   - answer + a link to the full clip are revealed only AFTER the guess
+   ============================================================ */
+/* The game plays PUBLIC-DOMAIN AUDIO in-page via <audio> (no YouTube iframe,
+   no new tab) so the clip's name/image never leaks before the guess — this is
+   what works on locked-down panels. Audio = Wikimedia Commons (public domain),
+   streamed via Special:FilePath. `yt` = a full official clip to watch AFTER answering.
+   NOTE: "สมัยปัจจุบัน" uses Kevin MacLeod's "Stratosphere" (CC BY 3.0) as an
+   electronic example. The "เพลงพ็อป" type has no PD audio, so it stays on its
+   slide (YouTube link) and is not part of the audio quiz. */
+const FP='https://commons.wikimedia.org/wiki/Special:FilePath/';
+const CLIPS=[
+  {ans:'สมัยกลาง',           audio:FP+'Gaudeamus_omnes_-_Graduale_Aboense.ogg', yt:'VNmxfy_wEYg', info:'Gregorian Chant — เพลงสวดแนวเสียงเดียว ยุคกลาง'},
+  {ans:'สมัยฟื้นฟูศิลปวิทยา', audio:FP+'Monteverdi_-_cruda_amarilli.ogg', yt:'DIZDxaF511I', info:'Monteverdi – Cruda Amarilli (Madrigal ขับร้องหลายแนวเสียง)'},
+  {ans:'สมัยบาโรก',          audio:FP+'Bach_-_Brandenburg_Concerto_No._3_-_1._Allegro.ogg', yt:'pdsyNwUoON0', info:'Bach – Brandenburg Concerto No.3 (Concerto Grosso)'},
+  {ans:'สมัยคลาสสิก',        audio:FP+'Wolfgang_Amadeus_Mozart_-_Symphony_40_g-moll_-_1._Molto_allegro.ogg', yt:'Q4sJuUPv7Uw', info:'Mozart – Symphony No.40 (Sonata Form)'},
+  {ans:'สมัยโรแมนติก',       audio:FP+'Frederic_Chopin_-_Nocturne_Eb_major_Opus_9%2C_number_2.ogg', yt:'YGRO05WcNDk', info:'Chopin – Nocturne Op.9 No.2 (เปียโนเดี่ยว)'},
+  {ans:'สมัยปัจจุบัน',        audio:FP+'Stratosphere%2C_%28MacLeod%2C_Kevin%29.oga', yt:'a4tdS3IB294', info:'ดนตรีป๊อป/อิเล็กทรอนิกส์ยุคปัจจุบัน · เสียงตัวอย่าง: Kevin MacLeod (CC BY) · เพลงแนะนำ: Malcolm Todd – Earrings'},
+  {ans:'เพลงกันตาตา',        audio:FP+'Bach%2C_BWV_147%2C_10._Jesus_bleibet_meine_Freude.ogg', yt:'UMNof7QZuGo', info:'Bach – Cantata BWV 147 “Jesu, Joy of Man’s Desiring”'},
+  {ans:'เพลงโอเวอร์เจอร์',    audio:FP+'Mozart%2C_The_Marriage_of_Figaro_%28overture%29.ogg', yt:'0oaazxCPNwU', info:'ตัวอย่างเพลงโอเวอร์เจอร์ (บรรเลงเปิดการแสดง)'}
+];
+const ALL_ANS=CLIPS.map(c=>c.ans);
+
+const gCover=document.getElementById('gameCover');
+const gPlay=document.getElementById('gamePlay');
+const gAudio=document.getElementById('gameAudio');
+const gReveal=document.getElementById('gameReveal');
+const rvEra=document.getElementById('rvEra');
+const rvInfo=document.getElementById('rvInfo');
+const rvLink=document.getElementById('rvLink');
+const optsEl=document.getElementById('opts');
+const fbEl=document.getElementById('feedback');
+const scoreEl=document.getElementById('score');
+const qNoEl=document.getElementById('qNo');
+const qHintEl=document.getElementById('qHint');
+const nextBtn=document.getElementById('nextBtn');
+const replayBtn=document.getElementById('replayBtn');
+
+let deck=[],pos=0,correct=0,answered=false;
+const WATCH='https://www.youtube.com/watch?v=';
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startGame(){
+  deck=shuffle(CLIPS);pos=0;correct=0;
+  replayBtn.hidden=true;
+  loadRound();
+}
+function updateScore(){scoreEl.textContent='ถูก '+correct+'/'+pos;}
+
+function loadRound(){
+  answered=false;
+  const clip=deck[pos];
+  qNoEl.textContent=(pos+1);
+  qHintEl.textContent='แตะ ▶ เพื่อฟังเสียง (ภาพถูกซ่อน)';
+  fbEl.innerHTML='';
+  nextBtn.hidden=true;
+  // load PD audio (no iframe / no YouTube) so nothing reveals the answer
+  gReveal.hidden=true;
+  gCover.classList.remove('hidden');
+  gAudio.src=clip.audio;
+  gPlay.textContent='▶';
+  // build options: correct + 3 distractors
+  const distract=shuffle(ALL_ANS.filter(a=>a!==clip.ans)).slice(0,3);
+  const choices=shuffle([clip.ans,...distract]);
+  optsEl.innerHTML='';
+  choices.forEach(ch=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=ch;
+    b.addEventListener('click',()=>answer(b,ch,clip));
+    optsEl.appendChild(b);
+  });
+  updateScore();
+}
+
+gPlay.addEventListener('click',()=>{
+  // tap = user gesture -> in-page audio playback is allowed (works on file:// / locked panels)
+  if(gAudio.paused){
+    gAudio.play().then(()=>{gPlay.textContent='⏸';
+      qHintEl.textContent='🎵 กำลังเล่นเสียง... ตั้งใจฟังแล้วเลือกคำตอบ';
+    }).catch(()=>{qHintEl.textContent='⚠ เปิดเสียงไม่ได้ — เช็กอินเทอร์เน็ตแล้วลองใหม่ (หรือเดาจากความรู้)';});
+  }else{gAudio.pause();gPlay.textContent='▶';}
+});
+gAudio.addEventListener('error',()=>{qHintEl.textContent='⚠ โหลดเสียงไม่ได้ — เช็กอินเทอร์เน็ต (เกมยังเล่น/เฉลยได้)';});
+gAudio.addEventListener('ended',()=>{gPlay.textContent='▶';});
+
+function answer(btn,choice,clip){
+  if(answered)return;
+  answered=true;
+  pos_answered:{
+    [...optsEl.children].forEach(b=>b.disabled=true);
+    if(choice===clip.ans){
+      btn.classList.add('correct');correct++;
+      fbEl.innerHTML='<span class="ok">✓ ถูกต้อง!</span> '+clip.info;
+    }else{
+      btn.classList.add('wrong');
+      [...optsEl.children].forEach(b=>{if(b.textContent===clip.ans)b.classList.add('correct');});
+      fbEl.innerHTML='<span class="no">✗ ยังไม่ใช่</span> คำตอบที่ถูกคือ <b>'+clip.ans+'</b> — '+clip.info;
+    }
+  }
+  // reveal the answer + a link to watch the full official clip on YouTube
+  rvEra.innerHTML=(choice===clip.ans
+    ?'<span style="color:#5fe39b">✓ '+clip.ans+'</span>'
+    :'<span style="color:#ff7a86">✗ เฉลย: '+clip.ans+'</span>');
+  rvInfo.textContent=clip.info;
+  rvLink.href=WATCH+clip.yt;
+  gCover.classList.add('hidden');
+  gReveal.hidden=false;
+  pos++;
+  updateScore();
+  if(pos<deck.length){nextBtn.hidden=false;}
+  else{
+    fbEl.innerHTML+='<br><b style="color:var(--accent)">จบเกม! คะแนนรวม '+correct+'/'+deck.length+'</b>';
+    replayBtn.hidden=false;
+  }
+}
+
+nextBtn.addEventListener('click',loadRound);
+replayBtn.addEventListener('click',startGame);
+document.getElementById('skipGame').addEventListener('click',()=>{gAudio.pause();go(total-1);});
+
+/* (re)start the game when entering its slide; stop audio when leaving */
+const _show=show;
+show=function(i){
+  const leavingGame=slides[idx]&&slides[idx].id==='s-game';
+  _show(i);
+  if(slides[idx].id==='s-game'){startGame();}
+  else if(leavingGame){gAudio.pause();}
+};
+
+/* fit the fixed 1600x900 canvas uniformly into the viewport */
+const deckEl=document.getElementById('deck');
+function fit(){
+  const s=Math.min(window.innerWidth/1600,window.innerHeight/900);
+  deckEl.style.setProperty('--s',s);
+}
+window.addEventListener('resize',fit);
+fit();
+
+/* init */
+show(0);
+</script>
+</body>
+</html>
